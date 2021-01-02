@@ -1,0 +1,203 @@
+#include <string.h>
+#include <sstream>
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+#pragma region ---===   Function   ===---
+
+int IntParse(string msg)
+{
+    while (true)
+    {
+        cout << "\nВведите " + msg + ": ";
+        int number;
+        cin >> number;
+
+        if (cin.fail())                 
+        {
+            cin.clear();                
+            cin.ignore(SHRT_MAX, '\n'); 
+        }
+
+        if (number > INT32_MIN && number <= INT32_MAX)
+        {
+            return number;
+        }
+
+        else
+        {
+            cout << "\nПовторите ввод!\n";
+        }
+    }
+}
+
+int StringToInt(string numberAsString)
+{
+    int numberAsInt;
+    stringstream ss;
+
+    ss << numberAsString;
+    ss >> numberAsInt;
+
+    return numberAsInt;
+}
+
+string IntToString(int numberAsInt)
+{
+    string numberAsString;
+    stringstream ss;
+
+    ss << numberAsInt;
+    ss >> numberAsString;
+
+    return numberAsString;
+}
+
+string TransferDecimalToAny(int number, const int& base)
+{
+    const char* DIGITS = "0123456789abcdefghijklmnopqrstuvwxyz";
+    bool FlagInverse = false;
+    string reversString, stringInBase;
+
+    if (base < 2 || base > 36)
+    {
+        cout << "Error: основание должно быть от 2 до 36." << endl;
+        return "-1";
+    }
+
+    if (number < 0)
+    {
+        FlagInverse = true;
+        number *= -1;
+    }
+
+    stringInBase += DIGITS[number % base];
+    number = number / base;
+    while (number)
+    {
+        stringInBase += DIGITS[number % base];
+        number = number / base;
+    }
+
+    if (FlagInverse == true)
+    {
+        reversString = "-";
+    }
+
+    for (int i = stringInBase.length() - 1; i >= 0; i--)
+    {
+        reversString += stringInBase[i];
+    }
+
+    return reversString;
+}
+
+int TransferBinaryToAny(long long n, const int& base)
+{
+    int number = 0,
+        i = 0,
+        remainder;
+
+    if (base < 2 || base > 10)
+    {
+        cout << "Error: основание должно быть от 2 до 10." << endl;
+        return -1;
+    }
+
+    do
+    {
+        remainder = n % 10;
+        n /= 10;
+        number += remainder * pow(base, i);
+
+    } while (n != 0 && ++i);
+
+    return number;
+}
+
+#pragma endregion
+
+int main()
+{
+
+#pragma region ---===   Location   ===---
+
+    setlocale(LC_ALL, "Rus");
+
+#pragma endregion
+
+    char exit;
+    int number;
+    int base;
+    char check;
+
+    string myStr;
+
+    do
+    {
+        cout << "Какое преобразование вы хотите совершить?" << endl;
+        cout << "1 - Dec to Any" << endl;
+        cout << "2 - Bin to Any" << endl;
+
+        cout << "9 - Test Dec" << endl;
+    tryAgain:   cout << "\> ";
+
+        cin >> check;
+
+        switch (check)
+        {
+        case '1':
+        {
+            number = IntParse("десятичное число для преобразования");
+            base = IntParse("базовое значение преобразования");
+
+            myStr = TransferDecimalToAny(number, base);
+
+            cout << base << "-е представление: " << myStr << endl;
+
+            break;
+        }
+
+        case '2':
+        {
+            number = IntParse("двоичное число для преобразования");
+            base = IntParse("базовое значение преобразования");
+
+            myStr = IntToString(TransferBinaryToAny(number, base));
+
+            cout << myStr << endl;
+
+            break;
+        }
+
+        case '9':
+        {
+            number = IntParse("десятичное число для преобразования");
+            base = IntParse("базовое значение преобразования");
+
+            myStr = TransferDecimalToAny(number, base);
+
+            cout << myStr << endl;
+            cout << TransferBinaryToAny(StringToInt(myStr), base) << endl;
+
+            break;
+        }
+
+        default:
+
+            cout << "Error: выберете доступный пункт меню" << endl;
+
+            goto tryAgain;
+        }
+
+#pragma region ---===   Output   ===---
+
+        cout << "\nЧто бы продолжить введите любой символ\n\tДля выхода нажмите 'X' англ\n";
+        cin >> exit;
+
+#pragma endregion
+
+    } while (exit != 'x' && exit != 'X' /* англ */);
+}
